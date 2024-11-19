@@ -1,6 +1,7 @@
 package com.shreyash.yummy_new.helper;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.stereotype.Component;
@@ -58,5 +59,19 @@ public class JWTHelper {
         final String extractedUsername = extractUsername(token);
 //        return (extractedUsername.equals(username) && !isTokenExpired(token));
         return !isTokenExpired(token);
+    }
+
+
+    public String extractEmail(String token) {
+        return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody().getSubject();
+    }
+
+    public boolean isTokenValid(String token) {
+        try {
+            Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
     }
 }

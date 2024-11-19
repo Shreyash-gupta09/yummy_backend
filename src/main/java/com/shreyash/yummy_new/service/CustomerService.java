@@ -53,4 +53,41 @@ public class CustomerService {
 
         return jwtHelper.generateToken(request.email());
     }
+
+    public void updateCustomer(String email, CustomerRequest request) {
+        Customer customer = customerRepo.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Customer not found"));
+        // Update fields only if they are not null
+        if (request.firstName() != null) {
+            customer.setFirstName(request.firstName());
+        }
+        if (request.lastName() != null) {
+            customer.setLastName(request.lastName());
+        }
+        if (request.address() != null) {
+            customer.setAddress(request.address());
+        }
+        if (request.city() != null) {
+            customer.setCity(request.city());
+        }
+        if (request.pincode() != null) {
+            customer.setPincode(request.pincode());
+        }
+        customerRepo.save(customer);
+    }
+    public void deleteCustomer(String email) {
+        Customer customer = customerRepo.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Customer not found"));
+        customerRepo.delete(customer);
+    }
+    public String validateAndExtractEmail(String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new RuntimeException("Invalid Authorization header");
+        }
+        String token = authHeader.substring(7);
+        if (!jwtHelper.isTokenValid(token)) {
+            throw new RuntimeException("Invalid or expired token");
+        }
+        return jwtHelper.extractEmail(token);
+    }
 }
